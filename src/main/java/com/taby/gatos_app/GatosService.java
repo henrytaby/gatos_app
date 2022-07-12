@@ -94,13 +94,13 @@ public class GatosService {
         }
     }
     public static void verFavoritos(String apiKey) throws IOException{
-        try{
+        
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("text/plain");
             RequestBody body = RequestBody.create(mediaType, "");
             Request request = new Request.Builder()
-            .url("https://api.thecatapi.com/v1/favourites/")
-            .method("GET", body)
+            .url("https://api.thecatapi.com/v1/favourites")
+            .get()
             .addHeader("x-api-key",apiKey)
             .build();
             Response response = client.newCall(request).execute();
@@ -119,12 +119,66 @@ public class GatosService {
                 
                 GatosFav gatofav = gatosArray[indice];
                 
+                //redimensionar en aso de necesitar
+                Image image = null;
+                try{
+                    URL url = new URL(gatofav.image.getUrl());
+                    image = ImageIO.read(url);
+
+                    ImageIcon fondoGato = new ImageIcon(image);
+                    if(fondoGato.getIconWidth() > 800){
+                        //redimensionamos
+                        Image fondo = fondoGato.getImage();
+                        Image modificada = fondo.getScaledInstance(800, 600, java.awt.Image.SCALE_SMOOTH);
+                        fondoGato = new ImageIcon(modificada);
+                    }
+                    // Opciones de menu
+                    String menu = "Opciones: \n"
+                            +" 1. Ver otra imagen \n"
+                            +" 2. Eliminar favoritos \n"
+                            +" 3. Volver \n";
+                    String[] botones = {"Ver otra imagen","Eliminar favoritos","Volver"};
+                    String id_gato = gatofav.getId();
+                    String opcion =(String) JOptionPane.showInputDialog(null,menu,id_gato,JOptionPane.INFORMATION_MESSAGE,fondoGato,botones,botones[0]);
+
+                    int seleccion = -1;
+                    for(int i=0;i<botones.length;i++){
+                        if(opcion.equals(botones[i])){
+                            seleccion = i;
+                        }
+                    }
+
+                    switch(seleccion){
+                        case 0:
+                            verFavoritos(apiKey);
+                            break;
+                        case 1:
+                            borrarFavorito(gatofav);
+                            break;
+                        default:
+                            break;
+                    }
+                }catch(IOException e){
+                    System.out.println(e);
+                }
             }
             
+        
+    }
+    
+    public static void borrarFavorito(GatosFav gatoFav) {
+        try{
+            OkHttpClient client = new OkHttpClient();
+            
+            Request request = new Request.Builder()
+                .url("https://api.thecatapi.com/v1/favourites/"+gatoFav.getId())
+                .delete(null)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("x-api-key", "fb78af3c-a99d-45de-b18c-83c8b027d27a")
+                .build();
+            Response response = client.newCall(request).execute();
         }catch(IOException e){
             System.out.println(e);
         }
-        
-        
     }
 }
