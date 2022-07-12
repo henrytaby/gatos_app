@@ -18,7 +18,8 @@ public class Inicio {
         int opcion_menu = -1;
         String[] botones = {
             "1. Ver gatos"
-            ,"2. Salir"
+            ,"2. Ver Favoritos"
+            ,"3. Salir"
         };
         
         do{
@@ -31,10 +32,14 @@ public class Inicio {
                     opcion_menu = i;
                 }
             }
-            
+
             switch(opcion_menu){
                 case 0:
                     GatosService.verGatos();
+                    break;
+                case 1:
+                    Gatos gato = new Gatos();
+                    GatosService.verFavoritos(gato.getApiKey());
                     break;
                 default:
                     break;
